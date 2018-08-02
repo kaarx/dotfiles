@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# Use config to manage dotfiles.
-alias config='/usr/bin/git --git-dir=$HOME/.dots/ --work-tree=$HOME'
-
 # Detect which `ls` flavor is in use
 if ls --color > /dev/null 2>&1; then # GNU `ls`
 	colorflag="--color"
@@ -29,4 +26,3 @@ alias ls="command ls ${colorflag}"
 alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
-
