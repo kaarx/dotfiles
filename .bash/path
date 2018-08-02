@@ -1,0 +1,9 @@
+#!/usr/bin.env bash
+
+
+if [[ "$(uname -s)" == "Darwin" ]]; then
+  export PATH="/usr/local/opt/coreutils/bin:$HOME/bin:$PATH"
+elif [[ "$(uname -s)" == "Linux" ]]; then
+  export PATH="$HOME/bin:$PATH"
+fi
+

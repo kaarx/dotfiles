@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+# Easier navigation: 
+alias ..="cd .."
+alias ...="cd ../.."
+alias ....="cd ../../.."
+alias .....="cd ../../../.."
+alias ~="cd ~" # `cd` is probably faster to type though
+alias -- -="cd -"
+
+alias c="clear"
+
+# Shortcuts
+alias d="cd ~/Documents"
+alias dl="cd ~/Downloads"
+alias dt="cd ~/Desktop"
+alias r="cd ~/repos"
+alias w="cd ~/repos/wiki"
+alias e="cd ~/repos/exercism"
+
+
