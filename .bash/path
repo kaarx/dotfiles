@@ -1,7 +1,7 @@
 #!/usr/bin.env bash
 
 if [[ "$(uname -s)" == "Darwin" ]]; then
-  export PATH="/usr/local/opt/coreutils/bin:$HOME/bin:$PATH"
+  export PATH="$(brew --prefix python)/libexec/bin:$(brew --prefix coreutils)/libexec/gnubin:$HOME/bin:/usr/local/sbin:$PATH"
 elif [[ "$(uname -s)" == "Linux" ]]; then
   export PATH="$HOME/bin:$PATH"
 fi

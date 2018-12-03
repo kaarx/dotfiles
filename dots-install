@@ -1,16 +1,13 @@
 #!/usr/bin/env bash
 
-# Check if git is installed.
-git --version > /dev/null 2>&1
-GIT_INSTALLED=$?
+# Check to see if Homebrew is installed, and install it if it is not
+command -v brew >/dev/null 2>&1 || { echo >&2 "Installing Homebrew Now"; \
+  /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"; }
 
-if [ $GIT_INSTALLED -ne 0 ]; then
-  echo "git is not installed!"
-  echo "Please install git and try again"
-  exit 0
-fi
+# Check to see if Git is install, and install it if it is not
+command -v git --version >/dev/null 2>&1 || brew install git
 
-git clone --bare https://github.com/kaarx/dotfiles.git $HOME/.dots
+git clone --bare git@github.com:kaarx/dotfiles.git $HOME/.dots
 
 function config {
    /usr/bin/git --git-dir=$HOME/.dots/ --work-tree=$HOME $@
@@ -26,3 +23,6 @@ if [ $? = 0 ]; then
 fi;
 config checkout
 config config status.showUntrackedFiles no
+
+
+
