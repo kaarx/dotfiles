@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+
+function rdp() {
+	if [[ ("$#" -ne 1 && "$#" -ne 2)]]; then
+		echo "Usage: rdp <server>[:port] [username]"
+		return 1;
+	fi
+	
+	local server=$1
+	local sec="-sec-nla +sec-rdp"
+	local res="/w:1660 /h:1825"
+	local params="/cert-ignore /bpp:16 /compression -themes -wallpaper /clipboard /auto-reconnect -glyph-cache"
+
+	if [[ "$#" -eq 2 ]]; then
+		sec="-sec-rdp /u:$2"
+	fi
+
+	xfreerdp $params $sec $res /v:$server
+}
+
+function rdp-ssh-tunnel() {
+	if [[ ("$#" -ne 2 && "$#" -ne 3)]]; then
+		echo "Usage : rdp-ssh-tunnel <ssh_server> <rdp_server>[:port] [rdp_user_name]"
+		return 1;
+	fi
+
+	local ssh_server=$1
+	local rdp_server=$2
+	local rdp_user_name=$3
+	local remote_port="3389"
+
+	# random local port number, pick another if it's in use.
+	local local_port=$(( ( RANDOM % 40000 )  + 20000 ))
+    while netstat -an | grep -c "[:.]$local_port\s" >/dev/null 2>&1
+    do
+        local_port=$(( ( RANDOM % 40000 )  + 20000 ))
+    done
+
+	# check to see if ssh control master is running, if not start it.
+	if ssh -O check $ssh_server >/dev/null 2>&1; then
+		echo "Master is already running"
+	else
+		echo "Master is not running, starting it now"
+		ssh -f -N $ssh_server
+	fi
+	
+	# check to see if rdp_server contains port
+	if echo $rdp_server  | grep -c ":" >/dev/null 2>&1; then
+		local tmp=$rdp_server
+		rdp_server=$(echo $tmp | cut -d: -f1)
+		remote_port=$(echo $tmp | cut -d: -f2)
+	fi
+
+    # add local forwarding rules to exiting ssh session
+	ssh -O forward -L $local_port:$rdp_server:$remote_port $ssh_server
+	rdp localhost:$local_port $rdp_user_name
+
+    # clean up - stop forwarding, leave master open
+	ssh -O cancel -L $local_port:$rdp_server:$remote_port $ssh_server
+}
+
+function rdp-pom() {
+	if [[ ("$#" -ne 1 && "$#" -ne 2)]]; then
+		echo "Usage : rdp-pom <rdp_server>[:port] [rdp_user_name]"
+		return 1;
+	fi
+
+	rdp-ssh-tunnel pombounce $1 $2
+}
