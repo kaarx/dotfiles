@@ -39,8 +39,8 @@ function getcert() {
 		echo "Validity : "
 		echo "${certText}" | grep -A 2 "Validity" | sed -e 's/^[ \t]*//' | tail -n 2	
 
-		echo "";
-		echo "${certText}"
+		# echo "";
+		# echo "${certText}"
 
 		return 0;
 	else
@@ -52,3 +52,5 @@ function getcert() {
 function tre() {
 	tree -aC -I '.git|node_modules|bower_components' --dirsfirst "$@" | less -FRNX;
 }
+
+
