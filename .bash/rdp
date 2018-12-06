@@ -31,10 +31,10 @@ function rdp-ssh-tunnel() {
 
 	# random local port number, pick another if it's in use.
 	local local_port=$(( ( RANDOM % 40000 )  + 20000 ))
-    while netstat -an | grep -c "[:.]$local_port\s" >/dev/null 2>&1
-    do
-        local_port=$(( ( RANDOM % 40000 )  + 20000 ))
-    done
+	while netstat -an | grep -c "[:.]$local_port\s" >/dev/null 2>&1
+	do
+		local_port=$(( ( RANDOM % 40000 )  + 20000 ))
+	done
 
 	# check to see if ssh control master is running, if not start it.
 	if ssh -O check $ssh_server >/dev/null 2>&1; then
@@ -51,12 +51,12 @@ function rdp-ssh-tunnel() {
 		remote_port=$(echo $tmp | cut -d: -f2)
 	fi
 
-    # add local forwarding rules to exiting ssh session
+	# add local forwarding rules to exiting ssh session
 	ssh -O forward -L $local_port:$rdp_server:$remote_port $ssh_server
 	rdp localhost:$local_port $rdp_user_name
 
-    # clean up - stop forwarding, leave master open
-	ssh -O cancel -L $local_port:$rdp_server:$remote_port $ssh_server
+	# clean up - stop unused port forwarding, leave master open
+	ssh -O cancel $ssh_server
 }
 
 function rdp-pom() {
@@ -66,4 +66,13 @@ function rdp-pom() {
 	fi
 
 	rdp-ssh-tunnel pombounce $1 $2
+}
+
+function rdp-lae() {
+	if [[ ("$#" -ne 1 && "$#" -ne 2)]]; then
+		echo "Usage : rdp-pom <rdp_server>[:port] [rdp_user_name]"
+		return 1;
+	fi
+
+	rdp-ssh-tunnel laebounce $1 $2
 }
