@@ -10,12 +10,13 @@ function rdp() {
 	local sec="-sec-nla +sec-rdp"
 	local res="/w:1660 /h:1825"
 	local params="/cert-ignore /bpp:16 /compression -themes -wallpaper /clipboard /auto-reconnect -glyph-cache"
-
+	local title="/title:$server"
 	if [[ "$#" -eq 2 ]]; then
 		sec="-sec-rdp /u:$2"
+		title="/title:$2@$server"
 	fi
 
-	xfreerdp $params $sec $res /v:$server
+	xfreerdp $params $sec $res $title /v:$server
 }
 
 function rdp-ssh-tunnel() {
@@ -56,7 +57,7 @@ function rdp-ssh-tunnel() {
 	rdp localhost:$local_port $rdp_user_name
 
 	# clean up - stop unused port forwarding, leave master open
-	ssh -O cancel $ssh_server
+	#ssh -O cancel $ssh_server
 }
 
 function rdp-pom() {
@@ -70,7 +71,7 @@ function rdp-pom() {
 
 function rdp-lae() {
 	if [[ ("$#" -ne 1 && "$#" -ne 2)]]; then
-		echo "Usage : rdp-pom <rdp_server>[:port] [rdp_user_name]"
+		echo "Usage : rdp-lae <rdp_server>[:port] [rdp_user_name]"
 		return 1;
 	fi
 
