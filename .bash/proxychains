@@ -1,0 +1,9 @@
+function pom() {
+    ssh-tunnel-master pombounce
+    proxychains4 -f ~/.proxychains/pombounce.conf $@
+}
+
+function lae() {
+    ssh-tunnel-master laebounce
+    proxychains4 -f ~/.proxychains/laebounce.conf $@
+}

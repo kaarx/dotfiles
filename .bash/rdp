@@ -1,22 +1,41 @@
 #!/usr/bin/env bash
 
+function rdp-params() {
+	if [[ ("$#" -ne 1 && "$#" -ne 2)]]; then
+		echo "Usage: rdp-params <server>[:port] [username]"
+		return 1;
+	fi	
+	local sec="-sec-nla +sec-rdp"
+	local res="/w:1660 /h:1825"
+	local params="/cert-ignore /bpp:16 /compression -themes -wallpaper /clipboard /auto-reconnect -glyph-cache"
+	local title="/title:$1"
+	if [[ "$#" -eq 2 ]]; then
+		sec="-sec-rdp /u:$2"
+		title="/title:$2@$1"
+	fi
+	echo "$params $sec $res $title /v:$1"
+}
+
 function rdp() {
 	if [[ ("$#" -ne 1 && "$#" -ne 2)]]; then
 		echo "Usage: rdp <server>[:port] [username]"
 		return 1;
 	fi
-	
-	local server=$1
-	local sec="-sec-nla +sec-rdp"
-	local res="/w:1660 /h:1825"
-	local params="/cert-ignore /bpp:16 /compression -themes -wallpaper /clipboard /auto-reconnect -glyph-cache"
-	local title="/title:$server"
-	if [[ "$#" -eq 2 ]]; then
-		sec="-sec-rdp /u:$2"
-		title="/title:$2@$server"
-	fi
 
-	xfreerdp $params $sec $res $title /v:$server
+	local params=$(rdp-params $@)
+	
+	xfreerdp $params #$sec $res $title /v:$server
+}
+
+function ssh-tunnel-master () {
+	local ssh_server=$1
+	# check to see if ssh control master is running, if not start it.
+	if ssh -O check $ssh_server >/dev/null 2>&1; then
+		echo "Master $ssh_server is already running"
+	else
+		echo "Master $ssh_server is not running, starting it now"
+		ssh -f -N $ssh_server
+	fi
 }
 
 function rdp-ssh-tunnel() {
@@ -36,14 +55,6 @@ function rdp-ssh-tunnel() {
 	do
 		local_port=$(( ( RANDOM % 40000 )  + 20000 ))
 	done
-
-	# check to see if ssh control master is running, if not start it.
-	if ssh -O check $ssh_server >/dev/null 2>&1; then
-		echo "Master is already running"
-	else
-		echo "Master is not running, starting it now"
-		ssh -f -N $ssh_server
-	fi
 	
 	# check to see if rdp_server contains port
 	if echo $rdp_server  | grep -c ":" >/dev/null 2>&1; then
@@ -52,12 +63,20 @@ function rdp-ssh-tunnel() {
 		remote_port=$(echo $tmp | cut -d: -f2)
 	fi
 
+	ssh-tunnel-master $ssh_server
+
 	# add local forwarding rules to exiting ssh session
 	ssh -O forward -L $local_port:$rdp_server:$remote_port $ssh_server
 	rdp localhost:$local_port $rdp_user_name
+}
 
-	# clean up - stop unused port forwarding, leave master open
-	#ssh -O cancel $ssh_server
+function rdp-proxychains () {
+	if [[ ("$#" -ne 2 && "$#" -ne 3)]]; then
+		echo "Usage : rdp-proxychains <proxychains_config_file> <rdp_server>[:port] [rdp_user_name]"
+		return 1;
+	fi
+	local params=$(rdp-params ${@:2})
+	proxychains4 -f $1 xfreerdp $params
 }
 
 function rdp-pom() {
@@ -65,8 +84,8 @@ function rdp-pom() {
 		echo "Usage : rdp-pom <rdp_server>[:port] [rdp_user_name]"
 		return 1;
 	fi
-
-	rdp-ssh-tunnel pombounce $1 $2
+	ssh-tunnel-master pombounce
+	rdp-proxychains ~/.proxychains/pombounce.conf $1 $2
 }
 
 function rdp-lae() {
@@ -75,5 +94,6 @@ function rdp-lae() {
 		return 1;
 	fi
 
-	rdp-ssh-tunnel laebounce $1 $2
+	ssh-tunnel-master laebounce
+	rdp-proxychains ~/.proxychains/laebounce.conf $1 $2
 }
