@@ -6,7 +6,7 @@ function rdp-params() {
 		return 1;
 	fi	
 	local sec="-sec-nla +sec-rdp"
-	local res="/w:1660 /h:1825"
+	local res="/w:1900 /h:2100"
 	local params="/cert-ignore /bpp:16 /compression -themes -wallpaper /clipboard /auto-reconnect -glyph-cache"
 	local title="/title:$1"
 	if [[ "$#" -eq 2 ]]; then
@@ -23,7 +23,6 @@ function rdp() {
 	fi
 
 	local params=$(rdp-params $@)
-	
 	xfreerdp $params #$sec $res $title /v:$server
 }
 
@@ -88,6 +87,8 @@ function rdp-pom() {
 	rdp-proxychains ~/.proxychains/pombounce.conf $1 $2
 }
 
+alias pom-rdp=rdp-pom
+
 function rdp-lae() {
 	if [[ ("$#" -ne 1 && "$#" -ne 2)]]; then
 		echo "Usage : rdp-lae <rdp_server>[:port] [rdp_user_name]"
@@ -97,3 +98,22 @@ function rdp-lae() {
 	ssh-tunnel-master laebounce
 	rdp-proxychains ~/.proxychains/laebounce.conf $1 $2
 }
+
+alias lae-rdp=rdp-lae
+
+function rdp-proxy() {
+	if [[ ("$#" -ne 1 && "$#" -ne 2)]]; then
+		echo "Usage : rdp-proxy <rdp_server>[:port] [rdp_user_name]"
+		return 1;
+	fi
+	rdp-proxychains ~/.proxychains/proxybounce.conf $1 $2
+}
+
+function rdp-sla() {
+	if [[ ("$#" -ne 1 && "$#" -ne 2)]]; then
+		echo "Usage : rdp-proxy <rdp_server>[:port] [rdp_user_name]"
+		return 1;
+	fi
+	rdp-proxychains ~/.proxychains/slabounce.conf $1 $2
+}
+
