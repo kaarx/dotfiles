@@ -7,3 +7,8 @@ function lae() {
     ssh-tunnel-master laebounce
     proxychains4 -f ~/.proxychains/laebounce.conf $@
 }
+
+function syd() {
+    ssh-tunnel-master sydbounce
+    proxychains4 -f ~/.proxychains/sydbounce.conf $@
+}
