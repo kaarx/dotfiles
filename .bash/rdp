@@ -7,6 +7,7 @@ function rdp-params() {
 	fi	
 	local sec="-sec-nla +sec-rdp"
 	local res="/w:1900 /h:2100"
+    #local res="/w:1670 /h:1000"
 	local params="/cert-ignore /bpp:16 /compression -themes -wallpaper /clipboard /auto-reconnect -glyph-cache"
 	local title="/title:$1"
 	if [[ "$#" -eq 2 ]]; then
@@ -26,16 +27,6 @@ function rdp() {
 	xfreerdp $params #$sec $res $title /v:$server
 }
 
-function ssh-tunnel-master () {
-	local ssh_server=$1
-	# check to see if ssh control master is running, if not start it.
-	if ssh -O check $ssh_server >/dev/null 2>&1; then
-		echo "Master $ssh_server is already running"
-	else
-		echo "Master $ssh_server is not running, starting it now"
-		ssh -f -N $ssh_server
-	fi
-}
 
 function rdp-ssh-tunnel() {
 	if [[ ("$#" -ne 2 && "$#" -ne 3)]]; then
