@@ -6,9 +6,11 @@ function rdp-params() {
 		return 1;
 	fi	
 	local sec="-sec-nla +sec-rdp"
-	local res="/w:1900 /h:2100"
-    #local res="/w:1670 /h:1000"
-	local params="/cert-ignore /bpp:16 /compression -themes -wallpaper /clipboard /auto-reconnect -glyph-cache"
+	#local res="/w:1920 /h:1080"
+	local res="/w:1910 /h:2120"
+	#local res="/w:2560 /h:1440"
+	#local res="/w:2550 /h:1540"
+	local params="/cert-ignore /bpp:8 /network:modem  /compression /audio-mode:1 /dynamic-resolution -themes -wallpaper /clipboard /auto-reconnect -glyph-cache -grab-keyboard /monitors:1 /scale-desktop:140"
 	local title="/title:$1"
 	if [[ "$#" -eq 2 ]]; then
 		sec="-sec-rdp /u:$2"
@@ -24,6 +26,7 @@ function rdp() {
 	fi
 
 	local params=$(rdp-params $@)
+  echo $params
 	xfreerdp $params #$sec $res $title /v:$server
 }
 
@@ -66,6 +69,7 @@ function rdp-proxychains () {
 		return 1;
 	fi
 	local params=$(rdp-params ${@:2})
+  echo $params
 	proxychains4 -f $1 xfreerdp $params
 }
 

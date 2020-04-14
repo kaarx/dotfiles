@@ -5,7 +5,7 @@ function mkd() {
 	mkdir -p "$@" && cd "$_";
 }
 
-function getcert() {
+function getcertssl() {
 	if [ -z "${1}" ]; then
 		echo "ERROR: No domain specified.";
 		return 1;
@@ -15,7 +15,7 @@ function getcert() {
 	echo "Testing ${domain}…";
 	echo ""; # newline
 
-	local tmp=$(echo -e "GET / HTTP/1.0\nEOT" \
+	local tmp=$(echo -e "QUIT" \
 		| openssl s_client -connect "${domain}:443" -servername "${domain}" 2>&1);
 
 	if [[ "${tmp}" = *"-----BEGIN CERTIFICATE-----"* ]]; then
@@ -28,6 +28,7 @@ function getcert() {
 			| openssl x509 -noout -text -certopt "no_aux, no_header, no_pubkey, \
 			no_serial, no_sigdump, no_signame, no_version");
 
+		echo "${certText}" | grep "Issuer:" | sed -e "s/ //g"
 		echo "Common Name:";
 		echo "${certText}" | grep "Subject:" | sed -e "s/^.*CN=//" | sed -e "s/\/emailAddress=.*//";
 		echo ""; # newline
@@ -40,7 +41,7 @@ function getcert() {
 		echo "${certText}" | grep -A 2 "Validity" | sed -e 's/^[ \t]*//' | tail -n 2	
 
 		# echo "";
-		# echo "${certText}"
+		#echo "${certText}"
 
 		return 0;
 	else
@@ -48,6 +49,8 @@ function getcert() {
 		return 1;
 	fi;
 }
+
+
 
 function tre() {
 	tree -aC -I '.git|node_modules|bower_components' --dirsfirst "$@" | less -FRNX;

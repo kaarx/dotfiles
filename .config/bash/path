@@ -3,5 +3,5 @@
 if [[ "$(uname -s)" == "Darwin" ]]; then
   export PATH="$(brew --prefix python)/libexec/bin:$(brew --prefix coreutils)/libexec/gnubin:$HOME/bin:/usr/local/sbin:$PATH"
 elif [[ "$(uname -s)" == "Linux" ]]; then
-  export PATH="$HOME/bin:$PATH"
+  export PATH="$HOME/go/bin:$HOME/bin:$PATH"
 fi
