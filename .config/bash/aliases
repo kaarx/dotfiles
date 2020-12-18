@@ -30,4 +30,4 @@ alias egrep='egrep --color=auto'
 alias vimrc='vim ~/.config/nvim/init.vim'
 
 # register assh wrapper
-alias ssh="assh wrapper ssh"
+#alias ssh="assh wrapper ssh"

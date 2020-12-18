@@ -4,13 +4,21 @@ function rdp-params() {
 	if [[ ("$#" -ne 1 && "$#" -ne 2)]]; then
 		echo "Usage: rdp-params <server>[:port] [username]"
 		return 1;
-	fi	
+	fi
+
+	local winid="$(xdotool getactivewindow)"
+	local width="$(xwininfo -id $winid | awk -F ': ' '/Width/{print $2}')"
+	local height="$(xwininfo -id $winid | awk -F ': ' '/Height/{print $2}')"
+
+#	echo "width = $width"
+#	echo "height = $height"
 	local sec="-sec-nla +sec-rdp"
+	local res="/w:$width /h:$height"
 	#local res="/w:1920 /h:1080"
-	local res="/w:1910 /h:2120"
+	#local res="/w:1910 /h:2120"
 	#local res="/w:2560 /h:1440"
 	#local res="/w:2550 /h:1540"
-	local params="/cert-ignore /bpp:8 /network:modem  /compression /audio-mode:1 /dynamic-resolution -themes -wallpaper /clipboard /auto-reconnect -glyph-cache -grab-keyboard /monitors:1 /scale-desktop:140"
+	local params="/log-level:ERROR /client-hostname:global-brad /dynamic-resolution /cert-ignore /network:modem  /compression /audio-mode:2 -themes -wallpaper /clipboard /auto-reconnect -glyph-cache -grab-keyboard /monitors:1 "
 	local title="/title:$1"
 	if [[ "$#" -eq 2 ]]; then
 		sec="-sec-rdp /u:$2"
@@ -26,7 +34,7 @@ function rdp() {
 	fi
 
 	local params=$(rdp-params $@)
-  echo $params
+  #echo $params
 	xfreerdp $params #$sec $res $title /v:$server
 }
 
@@ -48,7 +56,7 @@ function rdp-ssh-tunnel() {
 	do
 		local_port=$(( ( RANDOM % 40000 )  + 20000 ))
 	done
-	
+
 	# check to see if rdp_server contains port
 	if echo $rdp_server  | grep -c ":" >/dev/null 2>&1; then
 		local tmp=$rdp_server
@@ -69,7 +77,7 @@ function rdp-proxychains () {
 		return 1;
 	fi
 	local params=$(rdp-params ${@:2})
-  echo $params
+#  echo $params
 	proxychains4 -f $1 xfreerdp $params
 }
 
@@ -94,7 +102,17 @@ function rdp-lae() {
 	rdp-proxychains ~/.proxychains/laebounce.conf $1 $2
 }
 
-alias lae-rdp=rdp-lae
+function rdp-syd() {
+	if [[ ("$#" -ne 1 && "$#" -ne 2)]]; then
+		echo "Usage : rdp-syd <rdp_server>[:port] [rdp_user_name]"
+		return 1;
+	fi
+
+	ssh-tunnel-master sydbounce
+	rdp-proxychains ~/.proxychains/sydbounce.conf $1 $2
+}
+
+alias syd-rdp=rdp-syd
 
 function rdp-proxy() {
 	if [[ ("$#" -ne 1 && "$#" -ne 2)]]; then
@@ -111,4 +129,3 @@ function rdp-sla() {
 	fi
 	rdp-proxychains ~/.proxychains/slabounce.conf $1 $2
 }
-
